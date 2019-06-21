@@ -1,20 +1,12 @@
 const express = require('express');
+const statesController = require('../controllers/statesController');
+
 const routes = express.Router();
 
 routes
-  .get('/', (req, res) => {
-    res.send('List');
-  })
-  .get('/:id', (req, res) => {
-    res.send(`Show ${req.params.id}`);
-  })
-  .post('/', (req, res) => {
-    res.send('Create');
-  })
-  .post('/:id', (req, res) => {
-    res.send(`Edit ${req.params.id}`);
-  })
-  .post('/:id', (req, res) => {
-    res.send(`Delete ${req.params.id}`);
-  });
+  .get('/', statesController.list)
+  .get('/:id', statesController.show)
+  .post('/', statesController.create)
+  .put('/:id', statesController.edit)
+  .delete('/delete/:id', statesController.delete);
 module.exports = routes;
