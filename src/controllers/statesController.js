@@ -2,12 +2,12 @@ const State = require('../models/stateModel');
 
 module.exports = {
   list: async (req, res) => {
-    const states = await State.find({}).sort('-createdAt');
+    const states = await State.find({}).sort('-createdAt').populate('city');
     res.json(states);
   },
   show: async (req, res) => {
     const { id } = req.params;
-    const state = await State.findById(id);
+    const state = await State.findById(id).populate('city');
     res.json(state);
   },
   create: async (req, res) => {

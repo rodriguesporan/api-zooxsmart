@@ -7,6 +7,6 @@ routes
   .get('/', citiesController.list)
   .get('/:id', citiesController.show)
   .post('/', citiesController.create)
-  .post('/:id', citiesController.edit)
-  .post('/:id', citiesController.delete);
+  .put('/:id', citiesController.edit)
+  .delete('/delete/:id', citiesController.delete);
 module.exports = routes;

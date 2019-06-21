@@ -1,17 +1,44 @@
+const City = require('../models/cityModel');
+const State = require('../models/stateModel');
+const { ObjectId } = require('mongoose').Types;
+
 module.exports = {
-  list: (req, res) => {
-    res.send('List');
+  list: async (req, res) => {
+    const cities = await City.find({}).sort('-createdAt').populate('state');
+    res.json(cities);
   },
-  show: (req, res) => {
-    res.send(`Show ${req.params.id}`);
+  show: async (req, res) => {
+    const { id } = req.params;
+    const city = await City.findById(id).populate('state');
+    res.json(city);
   },
-  create: (req, res) => {
-    res.send('Create');
+  create: async (req, res) => {
+    const { name, stateId } = req.body;
+    const city = await City.create({ name, state: stateId });
+    const cities = await City.find({ state: ObjectId(stateId) });
+    await State.findByIdAndUpdate(stateId, { cities });
+    res.json(city);
   },
-  edit: (req, res) => {
-    res.send(`Edit ${req.params.id}`);
+  edit: async (req, res) => {
+    const { id } = req.params;
+    const { name, stateId } = req.body;
+    const prevCity = await City.findById(id);
+    const city = await City.findByIdAndUpdate(id, { name, state: stateId }, { new: true });
+    // busca as cidades referentes ao estado antes do update
+    const prevCities = await City.find({ state: ObjectId(prevCity.state) });
+    // atualiza o estado com as cidades anteriores
+    await State.findByIdAndUpdate(prevCity.state, { prevCities });
+    // busca as cidades após a atulização
+    const cities = await City.find({ state: ObjectId(stateId) });
+    // atualiza o estado
+    await State.findByIdAndUpdate(stateId, { cities });
+    res.json(city);
   },
-  delete: (req, res) => {
-    res.send(`Delete ${req.params.id}`);
+  delete: async (req, res) => {
+    const { id } = req.params;
+    const city = await City.findByIdAndDelete(id);
+    const cities = await City.find({ state: ObjectId(city.state) });
+    await State.findByIdAndUpdate(city.state, { cities });
+    res.json(city);
   },
 };
